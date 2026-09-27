@@ -1,29 +1,45 @@
-import { useNotificationStore } from '@/stores/notification'
+import { ref } from 'vue'
 
-/**
- * Composable for easy toast notifications anywhere in the app.
- * Usage:
- *   const { notify } = useNotification()
- *   notify('Product added to cart!', 'success')
- */
+const toasts = ref([])
+let idCounter = 0
+
 export function useNotification() {
-  const store = useNotificationStore()
-
-  function notify(message, type = 'success', duration = 4000) {
-    store.notify({ message, type, duration })
+  const addToast = (message, type = 'info', duration = 4000) => {
+    const id = idCounter++
+    const toast = {
+      id,
+      message,
+      type
+    }
+    
+    toasts.value.push(toast)
+    
+    if (duration > 0) {
+      setTimeout(() => {
+        removeToast(id)
+      }, duration)
+    }
   }
 
-  function notifySuccess(message) {
-    store.notify({ message, type: 'success' })
+  const removeToast = (id) => {
+    const index = toasts.value.findIndex(t => t.id === id)
+    if (index > -1) {
+      toasts.value.splice(index, 1)
+    }
   }
 
-  function notifyError(message) {
-    store.notify({ message, type: 'error' })
-  }
+  const success = (message, duration) => addToast(message, 'success', duration)
+  const error = (message, duration) => addToast(message, 'error', duration)
+  const warning = (message, duration) => addToast(message, 'warning', duration)
+  const info = (message, duration) => addToast(message, 'info', duration)
 
-  function notifyWarning(message) {
-    store.notify({ message, type: 'warning' })
+  return {
+    toasts,
+    addToast,
+    removeToast,
+    success,
+    error,
+    warning,
+    info
   }
-
-  return { notify, notifySuccess, notifyError, notifyWarning }
 }

@@ -1,33 +1,68 @@
 import { defineStore } from 'pinia';
-import api from '../services/api.js';
+import { cartApi } from '@/services/cartApi';
 
 export const useCartStore = defineStore('cart', {
     state: () => ({
-        items: []
+        items: [],
+        loading: false,
+        error: null
     }),
 
     actions: {
         async fetchCart() {
-            const response = await api.get('/getCart');
-            this.items = response.data;
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await cartApi.getCart();
+                this.items = response.data;
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Failed to fetch cart';
+                throw err;
+            } finally {
+                this.loading = false;
+            }
         },
 
-        async addToCart(product) {
-            await api.post('/saveCart', {
-                product_id: product.id,
-                quantity: 1
-            });
-            await this.fetchCart();
+        async addToCart(product, quantity = 1) {
+            this.loading = true;
+            this.error = null;
+            try {
+                await cartApi.addToCart(product.id, quantity);
+                await this.fetchCart();
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Failed to add item to cart';
+                throw err;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async updateQuantity(id, quantity) {
-            await api.put(`/cart/${id}`, { quantity });
-            await this.fetchCart();
+            this.loading = true;
+            this.error = null;
+            try {
+                await cartApi.updateQuantity(id, quantity);
+                await this.fetchCart();
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Failed to update quantity';
+                throw err;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async removeFromCart(id) {
-            await api.delete(`/cart/${id}`);
-            await this.fetchCart();
+            this.loading = true;
+            this.error = null;
+            try {
+                await cartApi.removeFromCart(id);
+                await this.fetchCart();
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Failed to remove item';
+                throw err;
+            } finally {
+                this.loading = false;
+            }
         }
     },
 

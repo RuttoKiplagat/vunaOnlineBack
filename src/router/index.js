@@ -1,13 +1,4 @@
-import HomePage from '@/components/HomePage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import Product from '@/components/Product.vue'
-import Cart from '@/components/Cart.vue'
-import Login from '@/components/Login.vue'
-import Orders from '@/components/Orders.vue'
-import Register from '@/components/Register.vue'
-import Admin from '@/components/Admin.vue'
-import checkOut from '@/components/checkOut.vue' 
-
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,46 +6,57 @@ const router = createRouter({
     {
       path: '/',
       name: 'homepage',
-      component: HomePage,
+      component: () => import('@/views/HomePage.vue'),
     },
     {
       path: '/products',
       name: 'products',
-      component: Product,
+      component: () => import('@/views/Product.vue'),
+    },
+    {
+      path: '/products/:id',
+      name: 'product-details',
+      component: () => import('@/views/ProductDetails.vue'),
     },
     {
       path: '/cart',
       name: 'cart',
-      component: Cart,
+      component: () => import('@/views/Cart.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: Login,
+      component: () => import('@/views/Login.vue'),
     },
     {
       path: '/checkout',
       name: 'checkout',
-      component: checkOut,
+      component: () => import('@/views/Checkout.vue'),
     },
     {
       path: '/orders',
       name: 'orders',
-      component: Orders,
+      component: () => import('@/views/Orders.vue'),
     },
     {
       path: '/register',
       name: 'register',
-      component: Register,
+      component: () => import('@/views/Register.vue'),
     },
     {
-      path: '/Admin',
+      path: '/admin',
       name: 'admin',
-      component: Admin,
-    },
-    
-    
+      component: () => import('@/views/Admin.vue'),
+    }
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
 export default router
+
